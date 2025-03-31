@@ -1,0 +1,54 @@
+html, body {
+    min-height: 100%;
+    min-width: 100%;
+}
+
+a {
+    text-decoration: none;
+}
+
+h1, p {
+    margin: 10px;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bahnschrift Light', sans-serif;
+}
+
+#canvas{
+    min-width: 1000px;
+    min-height: 600px;
+    background-color: whitesmoke;
+}
+
+#legend{
+    min-width: 550px;
+    min-height: 200px;
+    margin-top: 50px;
+}
+
+#tooltip {
+    visibility: hidden;
+    z-index: 10;
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    opacity: 0.8;
+    background-color: rgb(255, 204, 0);
+    box-shadow: 0 0 3px 1px #121212;
+    position: absolute;
+    font-size: 15px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+rect {
+    stroke: white;
+    stroke-width: 0.25px;
+}

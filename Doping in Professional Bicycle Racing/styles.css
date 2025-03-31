@@ -1,0 +1,43 @@
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #c6cefa;
+    font-family: 'Microsoft Yi Baiti', sans-serif;
+}
+svg {
+    background-color: white;
+    box-shadow: 0 0 10px 1px grey;
+}
+.styleTxt {
+    color: black;
+    font-size: 30px;
+    font-weight: bold;
+}
+.dot {
+  stroke: black;
+}
+.dot:hover {
+    opacity: 0.5;
+}
+.label {
+    font-size: 20px;
+}
+#tooltip {
+  opacity: 0.9;
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+  background-color: #9daaf8;
+  width: auto;
+  height: auto;
+  border-radius: 3px;
+  box-shadow: 0 0 2px 1px grey;
+  padding: 10px;
+  font-size: 17px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}

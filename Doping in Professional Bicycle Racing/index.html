@@ -1,0 +1,148 @@
+<div id="div_template"></div>
+   <script>
+   
+   document.addEventListener('DOMContentLoaded', () => {
+      const req = new XMLHttpRequest();
+      req.open("GET",'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json',true);
+      req.send();
+      req.onload = () => {
+        let dataset = JSON.parse(req.responseText).map((i) => {
+          let keys = Object.keys(i);
+          let item = [];
+          for(let x = 0; x<keys.length; x++){
+            item.push(i[keys[x]]);
+          }
+          item.push(new Date (1970, 0, 1, 0, item[0].split(':')[0], item[0].split(':')[1]));
+          (!!i['Doping']) ? item.push('#0251ee') : item.push('#ee9f02');
+          return item;
+        });
+        const w = 1000;
+        const h = 600;
+        const padding = 75;
+       
+         /*
+        {
+          "Time": "36:50",
+          "Place": 1,
+          "Seconds": 2210,
+          "Name": "Marco Pantani",
+          "Year": 1995,
+          "Nationality": "ITA",
+          "Doping": "Alleged drug use during 1995 due to high hematocrit levels",
+          "URL": "https://en.wikipedia.org/wiki/Marco_Pantani#Alleged_drug_use"
+          "time": 'utc eoron1049L14'
+          "color": ...
+        }
+        [
+        "36:50",
+        1,
+        2210,
+        "Marco Pantani",
+        1995,
+        "ITA",
+        "Alleged drug use during 1995 due to high hematocrit levels",
+        "https://en.wikipedia.org/wiki/Marco_Pantani#Alleged_drug_use",
+        "1969-12-31T23:36:50.000Z",
+        "#0251ee"
+        ]
+        */
+        const svg = d3.select('body')
+                      .append('svg')
+                      .attr('width', w)
+                      .attr('height', h);
+        svg.append('text')
+           .text('Doping in Professional Bicycle Racing')
+           .attr('id', 'title')
+           .attr('x', w/3)
+           .attr('y', 30)
+           .style('font-size', 25)
+           .style('font-weight', 'bold');
+        svg.append('text')
+           .text("35 Fastest times up Alpe d'Huez")
+           .attr('x', w/2.7)
+           .attr('y', 60)
+           .style('font-size', 20)
+           .style('font-weight', 'bold');
+        const xScale = d3.scaleLinear()
+                         .domain([d3.min(dataset, d => d[4]) - 1, d3.max(dataset, d => d[4]) + 1])
+                         .range([padding, w - padding]);        
+        const yScale = d3.scaleLinear()
+                         .domain([d3.max(dataset, d => d[8]), d3.min(dataset, d => d[8])])
+                         .range([h - padding, padding]);
+        const parseTime = d3.timeParse("%M:%S");
+        //console.log([d3.max(dataset, d => d[8]), d3.min(dataset, d => d[8])])
+        //create tooltip
+        let tooltip = d3.select("body")
+  			   .append("div")
+           .attr('id', 'tooltip')		       
+         //adding rectangles to this svg *holst*
+        svg.selectAll('circle')
+           .data(dataset)
+           .enter()
+           .append('circle')
+           .attr('data-xvalue', d => d[4])
+           .attr('data-yvalue', d => d[8])
+           .attr('r', 5)
+           .attr('cx', d => xScale(d[4]))
+           .attr('cy', d => yScale(d[8]))
+           .attr('fill', d => d[9])
+           .attr('class', 'dot')
+           .attr('index', (d, i) => i)
+           .on("mouseover", function(event, d){
+		        	let i = this.getAttribute('index');
+              let tip = dataset[i][3] + ': ' + dataset[i][5] + '<br>Year: ' + dataset[i][4] + ' Time: ' + dataset[i][0];
+              (!!dataset[i][6]) ? tip += '<br>' + '<br>' + dataset[i][6] : tip = tip;
+              tooltip.attr('data-year', dataset[i][4]);
+		        	tooltip.html(tip);
+		        	tooltip.style("visibility", "visible");
+		       })
+		       .on("mouseout", () => {
+		        	//d3.select(this).style("fill", "white");
+		        	tooltip.style("visibility", "hidden");
+		       })
+		       .on("mousemove", () => { tooltip.style("top", (event.pageY-50)+"px").style("left",(event.pageX+20)+"px");});
+               //Axis  
+        const xAxis = d3.axisBottom(xScale).tickFormat(d3.format(""));;
+        svg.append("g")
+           .attr('id', 'x-axis')
+           .attr("transform", "translate(0," + (h - padding) + ")")
+           .call(xAxis);
+        const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat('%M:%S'));//.tickFormat(d3.time.format("%H"));
+        svg.append("g")
+           .attr('id', 'y-axis')
+           .attr("transform", "translate(" + (padding) + ",0)")
+           .call(yAxis);
+        //labels
+        svg.append("text")
+           .attr("class", "y label")
+           .attr("text-anchor", "end")
+           .attr("x", -h/4)
+           .attr("y", 10)
+           .attr("dy", ".75em")
+           .attr("transform", "rotate(-90)")
+           .text("Time in Minutes")
+        svg.append('rect')
+           .attr('x', w - 0.5*padding)
+           .attr('y', h/2)
+           .attr('height', 17)
+           .attr('width', 17)
+           .attr('fill', '#ee9f02');
+        svg.append('text')
+           .text('No doping allegations')
+           .attr('id', 'legend')
+           .attr('x', w - 0.5*padding - 133)
+           .attr('y', h/2 + 12);
+        svg.append('rect')
+           .attr('x', w - 0.5*padding)
+           .attr('y', h/2 + 20)
+           .attr('height', 17)
+           .attr('width', 17)
+           .attr('fill', '#0251ee');
+        svg.append('text')
+           .text('Riders with doping allegations')
+           .attr('id', 'legend')
+           .attr('x', w - 0.5*padding - 180)
+           .attr('y', h/2 + 32);
+      };
+   });
+   </script>

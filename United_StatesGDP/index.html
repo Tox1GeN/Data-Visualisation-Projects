@@ -1,0 +1,99 @@
+<div id="div_template"></div>
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+   const req = new XMLHttpRequest();
+   req.open("GET",'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json',true);
+   req.send();
+   req.onload = () => {
+      let dataset = JSON.parse(req.responseText)['data'].map(i => {
+        if (new Date(i[0]).getMonth() === 0) {
+          return ([new Date(i[0]).getFullYear(), i[1], i[0]]);
+        } 
+        else if (new Date(i[0]).getMonth() === 3) {
+          return ([new Date(i[0]).getFullYear()+0.25, i[1], i[0]]);
+        } 
+        else if (new Date(i[0]).getMonth() === 6) {
+          return ([new Date(i[0]).getFullYear()+0.5, i[1], i[0]]);
+        } 
+        else if (new Date(i[0]).getMonth() === 9) {
+          return ([new Date(i[0]).getFullYear()+0.75, i[1], i[0]]);
+        }         
+      });
+      const w = 1000;
+      const h = 600;
+      const padding = 90;
+      //creating svg with these width and height
+      const svg = d3.select('body')
+                    .append('svg')
+                    .attr('width', w)
+                    .attr('height', h);
+      svg.append("text").text("United States GDP").attr('class','styleTxt').attr('x', w/2.5).attr('y', 40).attr('id', 'title');
+      //create scaleLinear() for x and y
+      const xScale = d3.scaleLinear()
+                       .domain([d3.min(dataset, d => d[0]), d3.max(dataset, d => d[0]) + 1])
+                       .range([padding, w - padding]);
+     
+      const yScale = d3.scaleLinear()
+                       .domain([0, d3.max(dataset, d => d[1])])
+                       .range([h - padding, padding]);
+      //create tooltip
+      let tooltip = d3.select("body")
+               .append("div")
+         .attr('id', 'tooltip')		       
+      //adding rectangles to this svg *holst*
+      svg.selectAll('rect')
+         .data(dataset)
+         .enter()
+         .append('rect')
+         .attr('data-date', d => d[2])
+         .attr('data-gdp', d => d[1])
+         .attr('x', d => xScale(d[0]))
+         .attr('y', d => yScale(d[1]))
+         .attr('width', (w - padding*2)/dataset.length) //(w - padding*2)/dataset.length
+         .attr('height', d => h - yScale(d[1]) - padding)
+         .attr('fill', '#02b7ee')
+         .attr('class', 'bar')
+         .attr('index', (d, i) => i)
+         .on("mouseover", function(event, d){
+                 let i = this.getAttribute('index');
+           let tip = dataset[i][2] + '\n$' + dataset[i][1] + 'Billion';
+           tooltip.attr('data-date', dataset[i][2]);
+                 tooltip.text(tip);
+                 tooltip.style("visibility", "visible");
+             })
+             .on("mouseout", () => {
+                 //d3.select(this).style("fill", "white");
+                 tooltip.style("visibility", "hidden");
+             })
+             .on("mousemove", () => { tooltip.style("top", (425)+"px").style("left",(event.pageX+20)+"px");});
+      //Axis  
+      const xAxis = d3.axisBottom(xScale).tickFormat(d3.format(""));
+      svg.append("g")
+         .attr('id', 'x-axis')
+         .attr("transform", "translate(0," + (h - padding) + ")")
+         .call(xAxis);
+      const yAxis = d3.axisLeft(yScale);// .tickFormat(d3.format(""));
+      svg.append("g")
+         .attr('id', 'y-axis')
+         .attr("transform", "translate(" + (padding) + ",0)")
+         .call(yAxis);
+      //labels
+      svg.append("text")
+         .attr("class", "y label")
+         .attr("text-anchor", "end")
+         .attr("x", -h/4)
+         .attr("y", 30)
+         .attr("dy", ".75em")
+         .attr("transform", "rotate(-90)")
+         .text("Gross Domestic Product (Billion dollars)")
+      svg.append("text")
+         .attr("class", "y label")
+         .attr("text-anchor", "end")
+         .attr("x", w/2 + 30)
+         .attr("y", h - 45)
+         .attr("dy", ".75em")
+         .text("Years");
+   };
+});
+</script>
